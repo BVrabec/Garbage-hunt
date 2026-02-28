@@ -85,7 +85,8 @@ public class TurtleMovementScript : MonoBehaviour
         transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, newZ);
     }
 
-    private void FlipDirection()
+    // Made public so other scripts can request a direction flip (e.g., FishCollider when a turtle meets a fish).
+    public void FlipDirection()
     {
         direction *= -1;
         UpdateFacing();

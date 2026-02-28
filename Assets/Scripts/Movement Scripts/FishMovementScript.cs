@@ -88,7 +88,7 @@ public class FishMovementScript : MonoBehaviour
         transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, newZ);
     }
 
-    private void FlipDirection()
+    public void FlipDirection()
     {
         direction *= -1;
         UpdateFacing();

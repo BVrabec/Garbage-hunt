@@ -149,7 +149,7 @@ Transform:
   m_GameObject: {fileID: 76980883}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.9883385, y: -1.0567987, z: -0.0007754396}
+  m_LocalPosition: {x: -8.53, y: -0.36, z: -0.0007754396}
   m_LocalScale: {x: 0.69855, y: 0.70381, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trash
   floatSpeed: 0.64
-  swayAmount: 0.56
+  swayAmount: 0.62
   bobHeight: 0.12
   bobSpeed: 0.9
   noiseScale: 0.6
@@ -480,6 +480,7 @@ GameObject:
   - component: {fileID: 485273990}
   - component: {fileID: 485273991}
   - component: {fileID: 485273992}
+  - component: {fileID: 485273993}
   m_Layer: 0
   m_Name: zelva_300x_0
   m_TagString: Untagged
@@ -496,7 +497,7 @@ Transform:
   m_GameObject: {fileID: 485273986}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.99, y: -2.99, z: 0.00029520757}
+  m_LocalPosition: {x: -3.08, y: -1.76, z: 0.00029520757}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -678,6 +679,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &485273993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 485273986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad6855a8829e744fa12ed609b5bdf7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FishCollider
+  flipCooldown: 0.25
 --- !u!1 &536519048
 GameObject:
   m_ObjectHideFlags: 0
@@ -708,7 +722,7 @@ Transform:
   m_GameObject: {fileID: 536519048}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.2039092, y: -1.2738254, z: 0.00021620837}
+  m_LocalPosition: {x: 3.37, y: -1.34, z: 0.00021620837}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -727,7 +741,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trash
   floatSpeed: 1
-  swayAmount: 0.3
+  swayAmount: 0.63
   bobHeight: 0.12
   bobSpeed: 0.9
   noiseScale: 0.6
@@ -917,7 +931,7 @@ Transform:
   m_GameObject: {fileID: 570335318}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.9303713, y: -1.4474468, z: 0.0007733607}
+  m_LocalPosition: {x: 7.81, y: -1.29, z: 0.0007733607}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -936,7 +950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trash
   floatSpeed: 1
-  swayAmount: 0.3
+  swayAmount: 0.54
   bobHeight: 0.12
   bobSpeed: 0.9
   noiseScale: 0.6
@@ -1536,7 +1550,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trash
   floatSpeed: 1
-  swayAmount: 0.3
+  swayAmount: 0.57
   bobHeight: 0.12
   bobSpeed: 0.9
   noiseScale: 0.6
@@ -1979,7 +1993,7 @@ Transform:
   m_GameObject: {fileID: 1717793620}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.1953444, y: -1.5505345, z: 0.0005072581}
+  m_LocalPosition: {x: 5.04, y: -3.46, z: 0.0005072581}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1998,7 +2012,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Trash
   floatSpeed: 1
-  swayAmount: 0.3
+  swayAmount: 0.67
   bobHeight: 0.12
   bobSpeed: 0.9
   noiseScale: 0.6
@@ -2172,6 +2186,7 @@ GameObject:
   - component: {fileID: 2031257403}
   - component: {fileID: 2031257404}
   - component: {fileID: 2031257405}
+  - component: {fileID: 2031257406}
   m_Layer: 0
   m_Name: napihovalka_150x_0
   m_TagString: Untagged
@@ -2188,7 +2203,7 @@ Transform:
   m_GameObject: {fileID: 2031257398}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.3259788, y: -1.6536224, z: -0.00022452408}
+  m_LocalPosition: {x: 2.23, y: -3.95, z: -0.00022452408}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2335,7 +2350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cad015315b911948a3a3a2ad5ada4cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TrashColliderScript
-  bounceCoefficient: 0.6
+  bounceCoefficient: 0.58
   linearDrag: 1.2
   angularDrag: 2
   buoyancyForce: 0.5
@@ -2370,6 +2385,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &2031257406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031257398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad6855a8829e744fa12ed609b5bdf7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FishCollider
+  flipCooldown: 0.25
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
