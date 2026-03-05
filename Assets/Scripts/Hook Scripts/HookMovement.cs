@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HookMovement : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class HookMovement : MonoBehaviour
     public float swingRopeLength = 0.8f;
     public float maxRopeLength = 7.5f;
 
-    [Header("Swing – Smooth & Responsive")]
+    [Header("Swing")]
     public float swingSpeed = 2.5f;
     public float maxSwingAngle = 90f;
     public float manualSwingStrength = 80f;
@@ -23,12 +24,12 @@ public class HookMovement : MonoBehaviour
 
     [Header("Auto Features")]
     public bool autoReturnOnGrab = true;
-    public bool destroyTrashOnReturn = true;
+    public string sortingSceneName = "SortingScene"; // ← change to your scene name
 
     [Header("Grab & Carry")]
-    public Transform grabPoint;                    // ← your GrabPoint (tip/center of claw)
-    public Vector3 carryOffset = new Vector3(0f, -0.15f, -0.05f);  // tweak this ↓↓↓
-    public float carryFollowSpeed = 12f;           // 10–18 range good
+    public Transform grabPoint;
+    public Vector3 carryOffset = new Vector3(0f, -0.15f, -0.05f);
+    public float carryFollowSpeed = 12f;
 
     [Header("Claw Rotation")]
     public float tiltMultiplier = 0.9f;
@@ -102,7 +103,6 @@ public class HookMovement : MonoBehaviour
 
         UpdateHookPosition();
 
-        // Manual release
         if (Input.GetKeyDown(releaseKey) && carriedTrash != null)
         {
             ReleaseTrash(false);
@@ -113,7 +113,6 @@ public class HookMovement : MonoBehaviour
     {
         if (carriedTrash == null) return;
 
-        // Smooth drag to offset position between claws
         Vector3 desired = carryOffset;
         carriedTrash.transform.localPosition = Vector3.Lerp(
             carriedTrash.transform.localPosition,
@@ -121,14 +120,13 @@ public class HookMovement : MonoBehaviour
             Time.deltaTime * carryFollowSpeed
         );
 
-        // Match claw rotation
         carriedTrash.transform.localRotation = Quaternion.Lerp(
             carriedTrash.transform.localRotation,
             Quaternion.identity,
             Time.deltaTime * carryFollowSpeed
         );
 
-        // Re-apply sorting every frame (safety)
+        // Keep sorting correct while carried
         SpriteRenderer[] srs = carriedTrash.GetComponentsInChildren<SpriteRenderer>(true);
         foreach (var sr in srs)
         {
@@ -158,19 +156,35 @@ public class HookMovement : MonoBehaviour
             }
         }
         else if (currentState == HookState.Reeling)
-        {
-            if (atTop)
-            {
-                currentState = HookState.Swinging;
-                currentAngle = 0f;
+{
+    if (atTop)
+    {
+        currentState = HookState.Swinging;
+        currentAngle = 0f;
 
-                if (carriedTrash != null && destroyTrashOnReturn)
+        if (carriedTrash != null)
+        {
+            TrashTypeScript tt = carriedTrash.GetComponent<TrashTypeScript>();
+            if (tt != null)
+            {
+                // Add to inventory instead of loading scene
+                if (InventoryManager.Instance.CanAddTrash(tt.type))
                 {
-                    Destroy(carriedTrash);
-                    carriedTrash = null;
+                    InventoryManager.Instance.AddTrash(tt.type);
+                    Debug.Log($"Added {tt.type} to inventory ({InventoryManager.Instance.inventory.Count}/{InventoryManager.Instance.maxCapacity})");
+                }
+                else
+                {
+                    Debug.Log("Inventory full! Sort trash first.");
+                    // Optional: drop trash back or keep it
                 }
             }
+
+            Destroy(carriedTrash); // Remove from scene
+            carriedTrash = null;
         }
+    }
+}
     }
 
     void UpdateHookPosition()
@@ -202,7 +216,7 @@ public class HookMovement : MonoBehaviour
     private void GrabTrash(GameObject trash)
     {
         carriedTrash = trash;
-        trash.transform.SetParent(grabPoint, true);  // worldPositionStays = true
+        trash.transform.SetParent(grabPoint, true);
 
         var trashRb = trash.GetComponent<Rigidbody2D>();
         if (trashRb) trashRb.bodyType = RigidbodyType2D.Kinematic;
@@ -220,7 +234,6 @@ public class HookMovement : MonoBehaviour
     private void ReleaseTrash(bool destroy = true)
     {
         if (carriedTrash == null) return;
-
         carriedTrash.transform.SetParent(null);
 
         var trashRb = carriedTrash.GetComponent<Rigidbody2D>();
