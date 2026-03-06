@@ -52,6 +52,9 @@ public class HookMovement : MonoBehaviour
     private float targetRopeLength;
     private float angleVelocity;
 
+    // Renderer used to draw rope (optional child)
+    private RopeRenderer ropeRenderer;
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -68,6 +71,15 @@ public class HookMovement : MonoBehaviour
         {
             Debug.LogError("Missing Pivot!");
             pivot = transform;
+        }
+
+        // Try to locate a RopeRenderer in children
+        ropeRenderer = GetComponent<RopeRenderer>();
+        ropeRenderer = GetComponentInChildren<RopeRenderer>();
+        if (ropeRenderer == null)
+        {
+            // not fatal, rope drawing is optional
+            Debug.LogWarning("HookMovement: no RopeRenderer found in children. Rope won't be drawn until assigned.");
         }
     }
 
@@ -111,6 +123,12 @@ public class HookMovement : MonoBehaviour
 
     void LateUpdate()
     {
+        // Keep rope drawn every frame if renderer exists
+        if (ropeRenderer != null)
+        {
+            ropeRenderer.RenderLine(transform.position, true);
+        }
+
         if (carriedTrash == null) return;
 
         Vector3 desired = carryOffset;
@@ -156,35 +174,35 @@ public class HookMovement : MonoBehaviour
             }
         }
         else if (currentState == HookState.Reeling)
-{
-    if (atTop)
-    {
-        currentState = HookState.Swinging;
-        currentAngle = 0f;
-
-        if (carriedTrash != null)
         {
-            TrashTypeScript tt = carriedTrash.GetComponent<TrashTypeScript>();
-            if (tt != null)
+            if (atTop)
             {
-                // Add to inventory instead of loading scene
-                if (InventoryManager.Instance.CanAddTrash(tt.type))
+                currentState = HookState.Swinging;
+                currentAngle = 0f;
+
+                if (carriedTrash != null)
                 {
-                    InventoryManager.Instance.AddTrash(tt.type);
-                    Debug.Log($"Added {tt.type} to inventory ({InventoryManager.Instance.inventory.Count}/{InventoryManager.Instance.maxCapacity})");
-                }
-                else
-                {
-                    Debug.Log("Inventory full! Sort trash first.");
-                    // Optional: drop trash back or keep it
+                    TrashTypeScript tt = carriedTrash.GetComponent<TrashTypeScript>();
+                    if (tt != null)
+                    {
+                        // Add to inventory instead of loading scene
+                        if (InventoryManager.Instance.CanAddTrash(tt.type))
+                        {
+                            InventoryManager.Instance.AddTrash(tt.type);
+                            Debug.Log($"Added {tt.type} to inventory ({InventoryManager.Instance.inventory.Count}/{InventoryManager.Instance.maxCapacity})");
+                        }
+                        else
+                        {
+                            Debug.Log("Inventory full! Sort trash first.");
+                            // Optional: drop trash back or keep it
+                        }
+                    }
+
+                    Destroy(carriedTrash); // Remove from scene
+                    carriedTrash = null;
                 }
             }
-
-            Destroy(carriedTrash); // Remove from scene
-            carriedTrash = null;
         }
-    }
-}
     }
 
     void UpdateHookPosition()
@@ -249,5 +267,46 @@ public class HookMovement : MonoBehaviour
         if (destroy) Destroy(carriedTrash);
 
         carriedTrash = null;
+    }
+
+    // Fixed MoveRope: works with the existing state/rope-length model and rope renderer.
+    // It no longer references undefined fields like canRotate/move_Speed/min_Y/initial_Y etc.
+    // Instead it uses currentState, pivot and rope lengths and draws the rope if available.
+    void MoveRope()
+    {
+        // If swinging, rope does not move vertically here.
+        if (currentState == HookState.Swinging)
+            return;
+
+        // Move along the hook's local up axis: Dropping goes down, Reeling goes up.
+        Vector3 moveDirection = (currentState == HookState.Dropping) ? -transform.up : transform.up;
+        float delta = ropeSpeed * Time.deltaTime;
+        transform.position += moveDirection * delta;
+
+        // Keep currentRopeLength consistent with distance to pivot so UpdateHookPosition logic stays valid.
+        float dist = Vector2.Distance(pivot.position, transform.position);
+        currentRopeLength = Mathf.Clamp(dist, swingRopeLength, maxRopeLength);
+
+        // If we've reached extremes, snap state.
+        if (Mathf.Approximately(currentRopeLength, maxRopeLength) || currentRopeLength >= maxRopeLength - 0.01f)
+        {
+            // At bottom
+            currentRopeLength = maxRopeLength;
+            // Optionally switch to reeling when hitting bottom
+            currentState = HookState.Reeling;
+        }
+
+        if (Mathf.Approximately(currentRopeLength, swingRopeLength) || currentRopeLength <= swingRopeLength + 0.01f)
+        {
+            // At top
+            currentRopeLength = swingRopeLength;
+            currentState = HookState.Swinging;
+            if (ropeRenderer != null) ropeRenderer.RenderLine(transform.position, false);
+        }
+        else
+        {
+            // Draw rope during movement
+            if (ropeRenderer != null) ropeRenderer.RenderLine(transform.position, true);
+        }
     }
 }
