@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum TrashType { Plastic, Glass, Metal, Paper}
+public enum TrashType { Plastic, Glass, Metal, Organic, Other }
 
 public class TrashTypeScript : MonoBehaviour
 {
