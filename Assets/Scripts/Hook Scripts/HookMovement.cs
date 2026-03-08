@@ -227,6 +227,7 @@ public class HookMovement : MonoBehaviour
         float rad = currentAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Sin(rad), -Mathf.Cos(rad));
         Vector2 targetPos = (Vector2)pivot.position + dir * currentRopeLength;
+
         transform.position = Vector2.Lerp(transform.position, targetPos, Time.deltaTime * 25f);
 
         float targetTilt = currentAngle * tiltMultiplier;
@@ -246,6 +247,7 @@ public class HookMovement : MonoBehaviour
         ropeLine.positionCount = 2;
         ropeLine.SetPosition(0, pivot.position);          // Start at pivot (boat)
 
+   
         // End at your manual RopeEndPoint
         if (ropeEndPoint != null)
         {
