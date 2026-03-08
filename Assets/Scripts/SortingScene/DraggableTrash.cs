@@ -135,12 +135,20 @@ public class DraggableTrash : MonoBehaviour
         {
             if (dumpster.acceptedType == trashType)
             {
-                InventoryManager.Instance.caps += dumpster.rewardCaps;
+                // Always award 10 caps for correctly sorted trash
+                InventoryManager.Instance.caps += 10;
                 InventoryManager.Instance.RemoveTrash(trashType);
                 SortingSceneManager ssm = FindObjectOfType<SortingSceneManager>();
                 if (ssm != null) ssm.UpdateScore();
+
+                // If no more trash remains in the inventory, return to the main/fishing scene automatically
+                if (InventoryManager.Instance != null && InventoryManager.Instance.inventory.Count == 0)
+                {
+                    InventoryManager.Instance.GoToFishing();
+                }
+
                 Destroy(gameObject);
-                Debug.Log($"Scored {trashType} +{dumpster.rewardCaps} caps!");
+                Debug.Log($"Scored {trashType} +10 caps!");
             }
             else
             {

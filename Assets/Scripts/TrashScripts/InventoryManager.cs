@@ -47,7 +47,17 @@ public class InventoryManager : MonoBehaviour
     public void RemoveTrash(TrashType type)
     {
         inventory.Remove(type);
+
+        // Give reward for correct sorting
+        caps += 10;
+
         SaveData();
+
+        // If all trash sorted, return to main scene automatically
+        if (inventory.Count == 0 && SceneManager.GetActiveScene().name == "SortingScene")
+        {
+            GoToFishing();
+        }
     }
 
     public void UpgradeCapacity()

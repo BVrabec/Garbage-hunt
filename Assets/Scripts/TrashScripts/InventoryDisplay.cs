@@ -55,4 +55,8 @@ public class InventoryDisplay : MonoBehaviour
     {
         InventoryManager.Instance.GoToSorting();  // Calls the method in InventoryManager
     }
+    public void OnBackButtonPressed()
+    {
+        InventoryManager.Instance.GoToFishing();  // Calls the method in InventoryManager
+    }
 }
