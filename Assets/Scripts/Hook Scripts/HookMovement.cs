@@ -9,7 +9,9 @@ public class HookMovement : MonoBehaviour
     public KeyCode releaseKey = KeyCode.LeftShift;
 
     [Header("Pivot & Rope")]
-    public Transform pivot;
+    public Transform pivot;                    // Main pivot (boat/start of rope)
+    public Transform ropeStartPoint;           // Manual start point on hook (drag RopeStartPoint child here)
+    public Transform ropeEndPoint;             // Manual end point on hook (drag RopeEndPoint child here)
     public float swingRopeLength = 0.8f;
     public float maxRopeLength = 7.5f;
 
@@ -24,7 +26,7 @@ public class HookMovement : MonoBehaviour
 
     [Header("Auto Features")]
     public bool autoReturnOnGrab = true;
-    public string sortingSceneName = "SortingScene"; // ← change to your scene name
+    public string sortingSceneName = "SortingScene";
 
     [Header("Grab & Carry")]
     public Transform grabPoint;
@@ -38,6 +40,12 @@ public class HookMovement : MonoBehaviour
     [Header("Trash Visibility")]
     public string trashSortingLayer = "Default";
     public int trashSortingOrder = 2;
+
+    [Header("Rope Line (VRVICA)")]
+    public LineRenderer ropeLine;              // Drag LineRenderer here
+    public float ropeWidth = 0.15f;
+    public Color ropeColor = new Color(0.6f, 0.3f, 0.1f);
+    public Material ropeMaterial;              // Drag rope texture material here
 
     [Header("Debug")]
     public HookState currentState;
@@ -68,6 +76,36 @@ public class HookMovement : MonoBehaviour
         {
             Debug.LogError("Missing Pivot!");
             pivot = transform;
+        }
+
+        // Setup rope line
+        if (ropeLine == null)
+        {
+            ropeLine = gameObject.GetComponent<LineRenderer>();
+            if (ropeLine == null)
+            {
+                ropeLine = gameObject.AddComponent<LineRenderer>();
+            }
+
+            ropeLine.positionCount = 2;
+            ropeLine.startWidth = ropeWidth;
+            ropeLine.endWidth = ropeWidth;
+            ropeLine.useWorldSpace = true;
+
+            if (ropeMaterial != null)
+            {
+                ropeLine.material = ropeMaterial;
+                ropeLine.textureMode = LineTextureMode.Tile;
+            }
+            else
+            {
+                ropeLine.material = new Material(Shader.Find("Sprites/Default"));
+                ropeLine.startColor = ropeColor;
+                ropeLine.endColor = ropeColor;
+            }
+
+            ropeLine.sortingLayerName = "Default";
+            ropeLine.sortingOrder = 1;
         }
     }
 
@@ -102,6 +140,7 @@ public class HookMovement : MonoBehaviour
         currentRopeLength = Mathf.Clamp(currentRopeLength, swingRopeLength, maxRopeLength);
 
         UpdateHookPosition();
+        UpdateRopeLine();
 
         if (Input.GetKeyDown(releaseKey) && carriedTrash != null)
         {
@@ -126,7 +165,6 @@ public class HookMovement : MonoBehaviour
             Time.deltaTime * carryFollowSpeed
         );
 
-        // Keep sorting correct while carried
         SpriteRenderer[] srs = carriedTrash.GetComponentsInChildren<SpriteRenderer>(true);
         foreach (var sr in srs)
         {
@@ -156,35 +194,32 @@ public class HookMovement : MonoBehaviour
             }
         }
         else if (currentState == HookState.Reeling)
-{
-    if (atTop)
-    {
-        currentState = HookState.Swinging;
-        currentAngle = 0f;
-
-        if (carriedTrash != null)
         {
-            TrashTypeScript tt = carriedTrash.GetComponent<TrashTypeScript>();
-            if (tt != null)
+            if (atTop)
             {
-                // Add to inventory instead of loading scene
-                if (InventoryManager.Instance.CanAddTrash(tt.type))
+                currentState = HookState.Swinging;
+                currentAngle = 0f;
+
+                if (carriedTrash != null)
                 {
-                    InventoryManager.Instance.AddTrash(tt.type);
-                    Debug.Log($"Added {tt.type} to inventory ({InventoryManager.Instance.inventory.Count}/{InventoryManager.Instance.maxCapacity})");
-                }
-                else
-                {
-                    Debug.Log("Inventory full! Sort trash first.");
-                    // Optional: drop trash back or keep it
+                    TrashTypeScript tt = carriedTrash.GetComponent<TrashTypeScript>();
+                    if (tt != null)
+                    {
+                        if (InventoryManager.Instance.CanAddTrash(tt.type))
+                        {
+                            InventoryManager.Instance.AddTrash(tt.type);
+                            Debug.Log($"Added {tt.type} to inventory");
+                        }
+                        else
+                        {
+                            Debug.Log("Inventory full! Sort trash first.");
+                        }
+                    }
+                    Destroy(carriedTrash);
+                    carriedTrash = null;
                 }
             }
-
-            Destroy(carriedTrash); // Remove from scene
-            carriedTrash = null;
         }
-    }
-}
     }
 
     void UpdateHookPosition()
@@ -202,6 +237,26 @@ public class HookMovement : MonoBehaviour
         if (curZ > 180) curZ -= 360;
         float newZ = Mathf.LerpAngle(curZ, targetTilt, Time.deltaTime * 18f);
         transform.rotation = Quaternion.Euler(0, 0, newZ);
+    }
+
+    private void UpdateRopeLine()
+    {
+        if (ropeLine == null || pivot == null) return;
+
+        ropeLine.positionCount = 2;
+        ropeLine.SetPosition(0, pivot.position);          // Start at pivot (boat)
+
+        // End at your manual RopeEndPoint
+        if (ropeEndPoint != null)
+        {
+            ropeLine.SetPosition(1, ropeEndPoint.position);
+        }
+        else
+        {
+            // Fallback if not assigned
+            ropeLine.SetPosition(1, transform.position);
+            Debug.LogWarning("RopeEndPoint not assigned – using hook center");
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -234,6 +289,7 @@ public class HookMovement : MonoBehaviour
     private void ReleaseTrash(bool destroy = true)
     {
         if (carriedTrash == null) return;
+
         carriedTrash.transform.SetParent(null);
 
         var trashRb = carriedTrash.GetComponent<Rigidbody2D>();
