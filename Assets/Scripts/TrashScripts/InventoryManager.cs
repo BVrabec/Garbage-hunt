@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance;
+    public System.Action<int> OnCapsChanged;
 
     [Header("Inventory")]
     public List<TrashType> inventory = new List<TrashType>();
@@ -32,6 +33,15 @@ public class InventoryManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    // Add this NEW method to your InventoryManager script
+public void AddCaps(int amount)
+{
+    caps += amount;
+    caps = Mathf.Max(0, caps);
+    SaveData();
+    
+    OnCapsChanged?.Invoke(caps);
+}
 
     public bool CanAddTrash(TrashType type)
     {
@@ -52,9 +62,7 @@ public class InventoryManager : MonoBehaviour
         inventory.Remove(type);
 
         // Give reward for correct sorting
-        caps += 10;
-
-        SaveData();
+        AddCaps(10);
 
         // If all trash sorted, return to main scene automatically
         if (inventory.Count == 0 && SceneManager.GetActiveScene().name == "SortingScene")
@@ -67,8 +75,9 @@ public class InventoryManager : MonoBehaviour
     {
         if (caps >= 50)
         {
-            caps -= 50;
+            AddCaps(-50);
             maxCapacity++;
+         
             SaveData();
         }
     }
@@ -95,6 +104,7 @@ public class InventoryManager : MonoBehaviour
             if (System.Enum.TryParse<TrashType>(typeStr, out TrashType type))
                 inventory.Add(type);
         }
+        
     }
 
     public void GoToSorting()

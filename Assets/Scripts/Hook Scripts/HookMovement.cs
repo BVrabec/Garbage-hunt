@@ -291,32 +291,61 @@ public class HookMovement : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D other)
+{
+    if (currentState == HookState.Swinging) return;
+    if (carriedTrash != null) return;
+
+    if (other.CompareTag("Turtle") || other.CompareTag("Pufferfish"))
     {
-        if (currentState == HookState.Swinging) return;
-        if (carriedTrash != null) return;
-
-        if (other.CompareTag("Turtle") || other.CompareTag("Pufferfish"))
+        // ← Add penalty here
+        if (InventoryManager.Instance != null)
         {
-            // Camera shake
-            if (CameraShake.Instance != null)
-            {
-                CameraShake.Instance.Shake(0.2f, 0.15f);
-            }
-
-            // Auto-reel
-            if (currentState != HookState.Reeling)
-            {
-                currentState = HookState.Reeling;
-                targetRopeLength = swingRopeLength;
-            }
-            return;
+            
+ // don't go negative (optional but recommended)
+              // update display immediately
+            // Optional: save immediately
+            // InventoryManager.Instance.SaveData();
         }
 
-        if (other.CompareTag("Trash") || other.GetComponent<Trash>() != null)
+        // Camera shake
+        // Camera shake
+if (CameraShake.Instance != null)
+{
+    CameraShake.Instance.Shake(0.2f, 0.15f);
+}
+
+// Floating red "-20"
+if (FloatingTextSpawner.Instance != null)
+{
+    FloatingTextSpawner.Instance.SpawnText(
+        "-20",
+        transform.position,
+        Color.red
+    );
+}
+
+// Auto-reel
+InventoryManager.Instance.AddCaps(-20);
+
+
+        // Auto-reel
+        if (currentState != HookState.Reeling)
         {
-            GrabTrash(other.gameObject);
+            currentState = HookState.Reeling;
+            targetRopeLength = swingRopeLength;
         }
+
+        // Optional: play negative sound, show "-20" popup, flash red HUD, etc.
+        Debug.Log("Hit protected animal → -20 caps!");
+
+        return;
     }
+
+    if (other.CompareTag("Trash") || other.GetComponent<Trash>() != null)
+    {
+        GrabTrash(other.gameObject);
+    }
+}
 
     private void GrabTrash(GameObject trash)
     {

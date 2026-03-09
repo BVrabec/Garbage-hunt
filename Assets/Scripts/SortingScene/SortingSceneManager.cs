@@ -182,14 +182,7 @@ public class SortingSceneManager : MonoBehaviour
         }
     }
 
-    public void UpdateScore()
-    {
-        if (scoreText != null && InventoryManager.Instance != null)
-        {
-            scoreText.text = $"Caps: {InventoryManager.Instance.caps}";
-        }
-    }
-
+    // In SortingSceneManager.cs
     public void BackToFishing()
     {
         if (InventoryManager.Instance != null)
@@ -203,4 +196,24 @@ public class SortingSceneManager : MonoBehaviour
     {
         BackToFishing();
     }
+    public void UpdateScore(int newCaps = 0)
+{
+    if (scoreText != null)
+    {
+        scoreText.text = $"Caps: {InventoryManager.Instance.caps}";
+    }
+}
+
+void OnEnable()
+{
+    if (InventoryManager.Instance != null)
+        InventoryManager.Instance.OnCapsChanged += UpdateScore;
+}
+
+void OnDisable()
+{
+    if (InventoryManager.Instance != null)
+        InventoryManager.Instance.OnCapsChanged -= UpdateScore;
+}
+
 }
