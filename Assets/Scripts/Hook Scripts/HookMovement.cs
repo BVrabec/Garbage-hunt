@@ -264,6 +264,25 @@ public class HookMovement : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (carriedTrash != null) return;
+
+        if (other.CompareTag("Turtle") || other.CompareTag("Pufferfish"))
+        {
+            // Camera shake
+            if (CameraShake.Instance != null)
+            {
+                CameraShake.Instance.Shake(0.2f, 0.15f);
+            }
+
+            // Hook goes back
+            if (currentState != HookState.Reeling)
+            {
+                currentState = HookState.Reeling;
+                targetRopeLength = swingRopeLength;
+            }
+
+            return;
+        }
+
         if (other.CompareTag("Trash") || other.GetComponent<Trash>() != null)
         {
             GrabTrash(other.gameObject);
