@@ -10,14 +10,15 @@ public class HookMovement : MonoBehaviour
 
     [Header("Pivot & Rope")]
     public Transform pivot;                    // Main pivot (boat/start of rope)
-    public Transform ropeStartPoint;           // Manual start point on hook (optional)
+    public Transform ropeStartPoint;           // Manual start point on hook (drag RopeStartPoint child here)
     public Transform ropeEndPoint;             // Manual end point on hook (drag RopeEndPoint child here)
     public float swingRopeLength = 0.8f;
     public float maxRopeLength = 7.5f;
 
-    [Header("Swing - Automatic only")]
+    [Header("Swing")]
     public float swingSpeed = 2.5f;
     public float maxSwingAngle = 90f;
+    public float manualSwingStrength = 80f;
     public float swingDamping = 0.85f;
 
     [Header("Speeds")]
@@ -59,8 +60,6 @@ public class HookMovement : MonoBehaviour
     private float targetRopeLength;
     private float angleVelocity;
 
-    private Camera mainCam;                    // Cache main camera for boundary check
-
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -78,8 +77,6 @@ public class HookMovement : MonoBehaviour
             Debug.LogError("Missing Pivot!");
             pivot = transform;
         }
-
-        mainCam = Camera.main;  // Cache camera
 
         // Setup rope line
         if (ropeLine == null)
@@ -127,9 +124,9 @@ public class HookMovement : MonoBehaviour
 
         if (currentState == HookState.Swinging)
         {
-            // Automatic swing only (no manual input)
             float auto = Mathf.Sin(Time.time * swingSpeed) * maxSwingAngle;
-            float target = auto;
+            float manual = Input.GetAxisRaw("Horizontal") * manualSwingStrength;
+            float target = auto + manual;
 
             float stiffness = 18f;
             float diff = Mathf.DeltaAngle(currentAngle, target);
@@ -149,9 +146,6 @@ public class HookMovement : MonoBehaviour
         {
             ReleaseTrash(false);
         }
-
-        // NEW: Check camera boundary and auto-reel + shake (same effect as turtle/pufferfish)
-        CheckCameraBoundary();
     }
 
     void LateUpdate()
@@ -233,6 +227,7 @@ public class HookMovement : MonoBehaviour
         float rad = currentAngle * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Sin(rad), -Mathf.Cos(rad));
         Vector2 targetPos = (Vector2)pivot.position + dir * currentRopeLength;
+
         transform.position = Vector2.Lerp(transform.position, targetPos, Time.deltaTime * 25f);
 
         float targetTilt = currentAngle * tiltMultiplier;
@@ -247,51 +242,28 @@ public class HookMovement : MonoBehaviour
 
     private void UpdateRopeLine()
     {
-        if (ropeLine == null) return;
+        if (ropeLine == null || pivot == null) return;
 
         ropeLine.positionCount = 2;
+        ropeLine.SetPosition(0, pivot.position);          // Start at pivot (boat)
 
-        // Start at pivot (boat) - always
-        ropeLine.SetPosition(0, pivot.position);
-
-        // End at manual RopeEndPoint if assigned, else hook center
-        Vector3 endPos = ropeEndPoint != null ? ropeEndPoint.position : transform.position;
-        ropeLine.SetPosition(1, endPos);
-    }
-
-    // NEW: Auto-reel + camera shake when hitting camera boundary (same as turtle/pufferfish)
-    private void CheckCameraBoundary()
-    {
-        if (mainCam == null) return;
-
-        float camHeight = mainCam.orthographicSize;
-        float camWidth = camHeight * mainCam.aspect;
-
-        Vector3 pos = transform.position;
-
-        // If hook is outside camera view (any side)
-        if (pos.x < -camWidth || pos.x > camWidth ||
-            pos.y > camHeight || pos.y < -camHeight)
+   
+        // End at your manual RopeEndPoint
+        if (ropeEndPoint != null)
         {
-            if (currentState != HookState.Reeling)
-            {
-                // Same effect as hitting turtle/pufferfish
-                currentState = HookState.Reeling;
-                targetRopeLength = swingRopeLength;
-
-                // Camera shake (assuming you have CameraShake script)
-                if (CameraShake.Instance != null)
-                {
-                    CameraShake.Instance.Shake(0.2f, 0.15f);  // duration, intensity
-                }
-
-                Debug.Log("Hook hit camera boundary - auto-reeling + shake!");
-            }
+            ropeLine.SetPosition(1, ropeEndPoint.position);
+        }
+        else
+        {
+            // Fallback if not assigned
+            ropeLine.SetPosition(1, transform.position);
+            Debug.LogWarning("RopeEndPoint not assigned – using hook center");
         }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        // Only interact with objects if hook is dropping or reeling
         if (currentState == HookState.Swinging) return;
         if (carriedTrash != null) return;
 
@@ -303,12 +275,13 @@ public class HookMovement : MonoBehaviour
                 CameraShake.Instance.Shake(0.2f, 0.15f);
             }
 
-            // Auto-reel
+            // Hook goes back
             if (currentState != HookState.Reeling)
             {
                 currentState = HookState.Reeling;
                 targetRopeLength = swingRopeLength;
             }
+
             return;
         }
 
