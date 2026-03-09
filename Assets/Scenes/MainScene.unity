@@ -629,7 +629,7 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.7433963, g: 0.4081666, b: 0.54197973, a: 1}
+    m_HighlightedColor: {r: 0, g: 1, b: 0.19354343, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
@@ -1539,6 +1539,7 @@ MonoBehaviour:
   inventory: 00000000000000000000000000000000
   maxCapacity: 10
   caps: 0
+  lastSceneName: MainScene
 --- !u!4 &831660361
 Transform:
   m_ObjectHideFlags: 0
@@ -2376,7 +2377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HookMovement
   descendKey: 32
-  ascendKey: 119
+  ascendKey: 32
   releaseKey: 304
   pivot: {fileID: 1042825189}
   ropeStartPoint: {fileID: 0}
