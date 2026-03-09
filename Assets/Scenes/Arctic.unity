@@ -987,6 +987,7 @@ MonoBehaviour:
   inventory: 00000000000000000000000000000000
   maxCapacity: 10
   caps: 0
+  lastSceneName: MainScene
 --- !u!4 &831660361
 Transform:
   m_ObjectHideFlags: 0
@@ -1749,7 +1750,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HookMovement
   descendKey: 32
-  ascendKey: 119
+  ascendKey: 32
   releaseKey: 304
   pivot: {fileID: 1042825189}
   ropeStartPoint: {fileID: 0}
