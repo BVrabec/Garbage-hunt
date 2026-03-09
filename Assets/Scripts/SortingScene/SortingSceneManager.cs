@@ -193,7 +193,10 @@ public class SortingSceneManager : MonoBehaviour
     public void BackToFishing()
     {
         if (InventoryManager.Instance != null)
-            InventoryManager.Instance.GoToFishing();
+        {
+            // This will go back to the scene the player came from
+            InventoryManager.Instance.GoBackToPreviousScene();
+        }
     }
 
     public void OnSortPressed()

@@ -263,6 +263,8 @@ public class HookMovement : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        // Only interact with objects if hook is dropping or reeling
+        if (currentState == HookState.Swinging) return;
         if (carriedTrash != null) return;
 
         if (other.CompareTag("Turtle") || other.CompareTag("Pufferfish"))

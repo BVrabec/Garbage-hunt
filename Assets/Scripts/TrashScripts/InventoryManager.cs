@@ -13,6 +13,9 @@ public class InventoryManager : MonoBehaviour
     [Header("Caps (Money)")]
     public int caps = 0;
 
+    [Header("Scene Tracking")]
+    public string lastSceneName = "MainScene";
+
     void Awake()
     {
         // TEMPORARY RESET FOR TESTING – removes saved data every game start
@@ -96,15 +99,36 @@ public class InventoryManager : MonoBehaviour
 
     public void GoToSorting()
     {
-        SceneManager.LoadScene("SortingScene");  // exact scene name!
+        lastSceneName = SceneManager.GetActiveScene().name;  // store current scene
+        SceneManager.LoadScene("SortingScene");             // load sorting
     }
-   public void GoToFishing()
-{
-    SceneManager.LoadScene("MainScene");  // ← CHANGE to your main fishing scene name (e.g. "Arena", "MainScene")
-}
+    public void GoToFishing()
+    {
+        if (!string.IsNullOrEmpty(lastSceneName) && lastSceneName != "SortingScene")
+        {
+            SceneManager.LoadScene(lastSceneName);  // return to where we came from
+        }
+        else
+        {
+            SceneManager.LoadScene("MainScene");   // fallback
+        }
+    }
 
     public void OnSortPressed()
     {
         InventoryManager.Instance.GoToFishing();  // Calls the method in InventoryManager
+    }
+    public void GoBackToPreviousScene()
+    {
+        // If lastSceneName was set and is not SortingScene, return to it
+        if (!string.IsNullOrEmpty(lastSceneName) && lastSceneName != "SortingScene")
+        {
+            SceneManager.LoadScene(lastSceneName);
+        }
+        else
+        {
+            // fallback
+            SceneManager.LoadScene("MainScene");
+        }
     }
 }
