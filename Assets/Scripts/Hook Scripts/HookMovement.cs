@@ -314,16 +314,6 @@ if (CameraShake.Instance != null)
     CameraShake.Instance.Shake(0.2f, 0.15f);
 }
 
-// Floating red "-20"
-if (FloatingTextSpawner.Instance != null)
-{
-    FloatingTextSpawner.Instance.SpawnText(
-        "-20",
-        transform.position,
-        Color.red
-    );
-}
-
 // Auto-reel
 InventoryManager.Instance.AddCaps(-20);
 
